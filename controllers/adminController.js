@@ -11,7 +11,7 @@ exports.sign_in_get = asyncHandler(async (req, res, next) => {
   res.send('path to sign in for admin');
 });
 
-exports.sign_ing_post = asyncHandler(async (req, res, next) => {
+exports.sign_in_post = asyncHandler(async (req, res, next) => {
   res.send('post request to sign in');
 });
 
@@ -20,8 +20,18 @@ exports.comment_post = asyncHandler(async (req, res, next) => {
 });
 
 exports.comment_delete = asyncHandler(async (req, res, next) => {
-  res.send('allows adming to delete a comment');
+  res.send('allows admin to delete a comment');
 });
+
+exports.post_new_get = asyncHandler(async (req, res, next) => {
+  res.send('displaying page that allows to write new post');
+});
+
+
+exports.post_new_post = asyncHandler(async (req, res, next) => {
+  res.send('allows to save new post');
+});
+
 
 exports.post_detail_get = asyncHandler(async (req, res, next) => {
   res.send('getting details of particular post');

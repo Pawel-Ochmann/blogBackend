@@ -5,8 +5,8 @@ const adminController = require('../controllers/adminController');
 
 /* GET home page. */
 
-router.get('admin/sign_in', adminController.sign_in_get);
-router.post('/admin/sing_in', adminController.sign_in_post);
+router.get('/admin/sign_in', adminController.sign_in_get);
+router.post('/admin/sign_in', adminController.sign_in_post);
 router.post('/admin/comments/:comment_id', adminController.comment_post);
 router.delete('/admin/comments/:comment_id', adminController.comment_delete);
 router.get('/admin/posts/new', adminController.post_new_get);

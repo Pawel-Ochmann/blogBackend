@@ -21,7 +21,7 @@ const PostSchema = new Schema({
   },
 });
 
-postSchema.virtual('date_formatted').get(function () {
+PostSchema.virtual('date_formatted').get(function () {
   return DateTime.fromJSDate(this.date).toISODate();
 });
 
