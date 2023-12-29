@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const cors = require('cors');
 require('dotenv').config();
 const compression = require('compression');
 const helmet = require('helmet');
@@ -25,6 +26,7 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 
+app.use(cors());
 app.use(compression());
 app.use(helmet());
 app.use(limiter);

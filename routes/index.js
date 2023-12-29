@@ -18,7 +18,7 @@ router.post('/admin/posts/:id', adminController.post_detail_post);
 router.delete('/admin/posts/:id', adminController.post_detail_delete);
 router.get('/admin', adminController.main_get);
 
-router.get('/:id', apiKeyMiddleware, appController.post_detail_get);
+router.get('/:id', apiKeyMiddleware,  appController.post_detail_get);
 router.post('/:id', apiKeyMiddleware, appController.post_detail_post);
 router.get('/', apiKeyMiddleware, appController.main_get);
 
