@@ -19,6 +19,9 @@ const PostSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+}, {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
 });
 
 PostSchema.virtual('date_formatted').get(function () {

@@ -1,7 +1,3 @@
-// router.get('/:id', appController.post_detail_get);
-// router.post('/:id', appController.post_detail_post);
-// router.get('/', appController.main_get);
-
 const Admin = require('../models/user');
 const Post = require('../models/post');
 const Comment = require('../models/comment');
@@ -12,7 +8,8 @@ const { body, validationResult } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
 exports.main_get = asyncHandler(async (req, res, next) => {
-  res.send('list of all posts');
+  const postsPublished = await Post.find({published:true})
+  res.json(postsPublished);
 });
 
 exports.post_detail_post = asyncHandler(async (req, res, next) => {
