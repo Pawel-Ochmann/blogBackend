@@ -8,24 +8,35 @@ const { body, validationResult } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
 exports.main_get = asyncHandler(async (req, res, next) => {
-  const postsPublished = await Post.find({published:true});
-  
-    const postsWithComments = await Promise.all(
-      postsPublished.map(async (postPublished) => {
-        const comments = await Comment.find({ post: postPublished._id });
-        return { ...postPublished.toObject(), comments };
-      })
-    );
-    res.json(postsWithComments);
+  const postsPublished = await Post.find({ published: true });
 
+  const postsWithComments = await Promise.all(
+    postsPublished.map(async (postPublished) => {
+      const comments = await Comment.find({ post: postPublished._id });
+      return { ...postPublished.toObject(), comments };
+    })
+  );
+  res.json(postsWithComments);
 });
 
 exports.post_detail_get = asyncHandler(async (req, res, next) => {
-  const [post, comments] = await Promise.all([Post.findById(req.params.postId), Comment.find({post:req.params.postId})]);
-  console.log({post, comments})
-  res.json(post);
+  const [post, comments] = await Promise.all([
+    Post.findById(req.params.postId),
+    Comment.find({ post: req.params.postId }).sort({ date: -1 }),
+  ]);
+  res.json({ post, comments });
 });
 
 exports.post_detail_post = asyncHandler(async (req, res, next) => {
-  res.send('this is a path to leave a comment');
+  const { author, content } = req.body;
+  const newComment = new Comment({ content, author, post: req.params.postId });
+  try {
+    await newComment.save();
+    res
+      .status(201)
+      .json({ success: true, message: 'Comment added successfully' });
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });

@@ -2,24 +2,30 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const { DateTime } = require('luxon');
 
-const CommentSchema = new Schema({
-  content: {
-    type: String,
-    required: true,
+const CommentSchema = new Schema(
+  {
+    content: {
+      type: String,
+      required: true,
+    },
+    author: {
+      type: String,
+      required: true,
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+    post: {
+      type: Schema.Types.ObjectId,
+      ref: 'Post',
+    },
   },
-  author: {
-    type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  post: {
-    type: Schema.Types.ObjectId,
-    ref: 'Post',
-  },
-});
+  {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
+);
 
 CommentSchema.virtual('date_formatted').get(function () {
   return DateTime.fromJSDate(this.date).toISODate();
