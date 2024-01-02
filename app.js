@@ -8,6 +8,8 @@ require('dotenv').config();
 const compression = require('compression');
 const helmet = require('helmet');
 const RateLimit = require('express-rate-limit');
+const passport = require('./passport-config');
+
 const limiter = RateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 60,
@@ -26,6 +28,7 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 
+app.use(passport.initialize());
 app.use(cors());
 app.use(compression());
 app.use(helmet());
@@ -52,7 +55,8 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  console.log(err)
+  res.send(err.message);
 });
 
 module.exports = app;

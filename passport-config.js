@@ -18,7 +18,8 @@ passport.use(
         return done(null, false, { message: 'Incorrect username.' });
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      console.log(user)
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
         return done(null, false, { message: 'Incorrect password.' });
@@ -53,3 +54,5 @@ passport.use(
     }
   )
 );
+
+module.exports = passport;

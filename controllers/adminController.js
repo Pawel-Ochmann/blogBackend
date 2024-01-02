@@ -1,6 +1,7 @@
 const Admin = require('../models/user');
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
 
@@ -9,23 +10,29 @@ const passport = require('../passport-config');
 const { body, validationResult } = require('express-validator');
 
 exports.sign_in_post = asyncHandler(async (req, res, next) => {
-  passport.authenticate('local', { session: false }, (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
+ passport.authenticate(
+   'local',
+   (err, user, info) => {
+     // Handle the result of authentication
+     if (err) {
+       return next(err);
+     }
 
-    if (!user) {
-      return res.status(401).json({ message: 'There is no such user!' });
-    }
+     if (!user) {
+       return res.status(401).json({ message: 'Authentication failed.' });
+     }
 
-    const token = jwt.sign({ sub: user._id }, secretKey); 
+     // If authentication is successful, generate a JWT token
+     const token = jwt.sign({ sub: user._id }, secretKey);
 
-    res.json({ token });
-  })(req, res, next);
+     // Send the token in the response
+     res.json({ token });
+   }
+ )(req, res, next);
 });
 
 exports.sign_in_get = asyncHandler(async (req, res, next) => {
-  res.send('post request to sign in');
+  res.send('logging');
 });
 
 exports.comment_post = asyncHandler(async (req, res, next) => {
