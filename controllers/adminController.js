@@ -19,11 +19,13 @@ exports.sign_in_post = asyncHandler(async (req, res, next) => {
      }
 
      if (!user) {
-       return res.status(401).json({ message: 'Authentication failed.' });
+          const errorMessage =
+            info && info.message ? info.message : 'Authentication failed.';
+          return res.status(401).json({ message: errorMessage });
      }
 
      // If authentication is successful, generate a JWT token
-     const token = jwt.sign({ sub: user._id }, secretKey);
+     const token = jwt.sign({ sub: user._id }, secretKey, {expiresIn:'10m'});
 
      // Send the token in the response
      res.json({ token });
@@ -64,5 +66,13 @@ exports.post_detail_delete = asyncHandler(async (req, res, next) => {
 });
 
 exports.main_get = asyncHandler(async (req, res, next) => {
-  res.send('getting a list of all posts');
+    const posts = await Post.find();
+
+    const postsWithComments = await Promise.all(
+      posts.map(async (post) => {
+        const comments = await Comment.find({ post: post._id });
+        return { ...post.toObject(), comments };
+      })
+    );
+    res.json(postsWithComments);
 });
