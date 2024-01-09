@@ -8,12 +8,17 @@ const protected = passport.authenticate('jwt', { session: false });
 router.get('/admin/sign_in', adminController.sign_in_get);
 router.post('/admin/sign_in', adminController.sign_in_post);
 router.post(
-  '/admin/comments/:comment_id',
+  '/admin/comments/:postId',
   protected,
   adminController.comment_post
 );
+router.put(
+  '/admin/comments/:commentId',
+  protected,
+  adminController.comment_put
+);
 router.delete(
-  '/admin/comments/:comment_id',
+  '/admin/comments/:commentId',
   protected,
   adminController.comment_delete
 );
