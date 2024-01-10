@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
 const mongoose = require('mongoose');
+const sanitizeHtml = require('sanitize-html');
 
 const asyncHandler = require('express-async-handler');
 const passport = require('../passport-config');
@@ -31,10 +32,6 @@ exports.sign_in_post = asyncHandler(async (req, res, next) => {
   })(req, res, next);
 });
 
-exports.sign_in_get = asyncHandler(async (req, res, next) => {
-  res.send('logging');
-});
-
 exports.comment_post = asyncHandler(async (req, res, next) => {
   const { content } = req.body;
   const newComment = new Comment({
@@ -55,12 +52,34 @@ exports.comment_post = asyncHandler(async (req, res, next) => {
 });
 
 exports.comment_put = asyncHandler(async (req, res, next) => {
-  res.send('allows editing comments');
+  const { content } = req.body;
+
+  try {
+    const editedComment = await Comment.findByIdAndUpdate(
+      req.params.commentId,
+      {
+        content,
+      },
+      { new: true }
+    );
+
+    if (!editedComment) {
+      console.log('Comment not found');
+      return res
+        .status(404)
+        .json({ success: false, message: 'Comment not found' });
+    }
+    res.status(200).json({ success: true, data: editedComment });
+  } catch (error) {
+    console.log('There was some issue when deleting a comment: ', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });
 
 exports.comment_delete = asyncHandler(async (req, res, next) => {
   try {
     const commentId = new mongoose.Types.ObjectId(req.params.commentId);
+    console.log(commentId);
     const deletedComment = await Comment.findByIdAndDelete(commentId);
 
     if (!deletedComment) {
@@ -70,20 +89,37 @@ exports.comment_delete = asyncHandler(async (req, res, next) => {
         .json({ success: false, message: 'Comment not found' });
     }
 
-    const comment = await Comment.findById(commentId);
-    console.log(req.params.commentId, comment);
+    await Comment.findById(commentId);
   } catch (error) {
     console.log('There was some issue when deleting a comment: ', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
 
-exports.post_new_get = asyncHandler(async (req, res, next) => {
-  res.send('displaying page that allows to write new post');
-});
-
 exports.post_new_post = asyncHandler(async (req, res, next) => {
-  res.send('allows to save new post');
+  const { title, content, published } = req.body;
+  console.log(title, content, published);
+
+  const sanitizedContent = sanitizeHtml(content, {
+    allowedTags: ['b', 'i', 'em', 'strong', 'a'],
+    allowedAttributes: {
+      a: ['href'],
+    },
+    allowedIframeHostnames: ['www.youtube.com'],
+  });
+
+  const newPost = new Post({
+    title,
+    content: sanitizedContent,
+    published,
+  });
+
+  try {
+    await newPost.save();
+    res.status(201).json(savedPost);
+  } catch {
+    res.send('Failed to save a post!');
+  }
 });
 
 exports.post_detail_get = asyncHandler(async (req, res, next) => {
@@ -94,16 +130,35 @@ exports.post_detail_get = asyncHandler(async (req, res, next) => {
   res.json({ post, comments });
 });
 
-exports.post_detail_post = asyncHandler(async (req, res, next) => {
+exports.post_detail_put = asyncHandler(async (req, res, next) => {
   res.send('allows editing a post');
 });
 
 exports.post_detail_delete = asyncHandler(async (req, res, next) => {
-  res.send('delete  a post');
+  try {
+    console.log(req.params.id);
+    await Comment.deleteMany({ post: req.params.id });
+    const deletedComment = await Post.findByIdAndDelete(req.params.id);
+
+    if (!deletedComment) {
+      console.log('Post not found');
+      return res
+        .status(404)
+        .json({ success: false, message: 'Post not found' });
+    }
+    console.log('Post deleted successfully');
+    return res.status(200).json({
+      success: true,
+      message: 'Post deleted successfully',
+    });
+  } catch (error) {
+    console.log('There was some issue when deleting a comment: ', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
 });
 
 exports.main_get = asyncHandler(async (req, res, next) => {
-  const posts = await Post.find();
+  const posts = await Post.find().sort({ date: -1 });
 
   const postsWithComments = await Promise.all(
     posts.map(async (post) => {

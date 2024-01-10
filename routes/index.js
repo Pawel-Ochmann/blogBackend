@@ -5,7 +5,6 @@ const adminController = require('../controllers/adminController');
 const passport = require('passport');
 const protected = passport.authenticate('jwt', { session: false });
 
-router.get('/admin/sign_in', adminController.sign_in_get);
 router.post('/admin/sign_in', adminController.sign_in_post);
 router.post(
   '/admin/comments/:postId',
@@ -22,10 +21,9 @@ router.delete(
   protected,
   adminController.comment_delete
 );
-router.get('/admin/posts/new', protected, adminController.post_new_get);
 router.post('/admin/posts/new', protected, adminController.post_new_post);
 router.get('/admin/posts/:id', protected, adminController.post_detail_get);
-router.post('/admin/posts/:id', protected, adminController.post_detail_post);
+router.put('/admin/posts/:id', protected, adminController.post_detail_put);
 router.delete(
   '/admin/posts/:id',
   protected,
