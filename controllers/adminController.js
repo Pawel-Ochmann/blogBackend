@@ -98,7 +98,6 @@ exports.comment_delete = asyncHandler(async (req, res, next) => {
 
 exports.post_new_post = asyncHandler(async (req, res, next) => {
   const { title, content, published } = req.body;
-  console.log(title, content, published);
 
   const sanitizedContent = sanitizeHtml(content, {
     allowedTags: ['b', 'i', 'em', 'strong', 'a'],
@@ -131,7 +130,29 @@ exports.post_detail_get = asyncHandler(async (req, res, next) => {
 });
 
 exports.post_detail_put = asyncHandler(async (req, res, next) => {
-  res.send('allows editing a post');
+  const { title, content, published } = req.body;
+  const isValidObjectId = mongoose.Types.ObjectId.isValid(req.params.id);
+
+  if (!isValidObjectId) {
+    return res.status(400).json({ error: 'Invalid post ID' });
+  }
+
+  const sanitizedContent = sanitizeHtml(content, {
+    allowedTags: ['b', 'i', 'em', 'strong', 'a'],
+    allowedAttributes: {
+      a: ['href'],
+    },
+    allowedIframeHostnames: ['www.youtube.com'],
+  });
+
+  try {
+    console.log('is it working?');
+    const updatedPost = await Post.findByIdAndUpdate(req.params.id, {title, content:sanitizedContent, published}, {new:true});
+    
+    res.status(201).json(updatedPost);
+  } catch {
+    res.send('Failed to edit a post!');
+  }
 });
 
 exports.post_detail_delete = asyncHandler(async (req, res, next) => {
