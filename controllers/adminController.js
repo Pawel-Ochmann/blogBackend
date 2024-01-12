@@ -97,7 +97,7 @@ exports.comment_delete = asyncHandler(async (req, res, next) => {
 });
 
 exports.post_new_post = asyncHandler(async (req, res, next) => {
-  const { title, content, published } = req.body;
+  const { title, image, content, published } = req.body;
 
   const sanitizedContent = sanitizeHtml(content, {
     allowedTags: ['b', 'i', 'em', 'strong', 'a'],
@@ -112,6 +112,10 @@ exports.post_new_post = asyncHandler(async (req, res, next) => {
     content: sanitizedContent,
     published,
   });
+
+  if (image) {
+    newPostData.image = image;
+  }
 
   try {
     await newPost.save();
@@ -130,7 +134,7 @@ exports.post_detail_get = asyncHandler(async (req, res, next) => {
 });
 
 exports.post_detail_put = asyncHandler(async (req, res, next) => {
-  const { title, content, published } = req.body;
+  const { title, image, content, published } = req.body;
   const isValidObjectId = mongoose.Types.ObjectId.isValid(req.params.id);
 
   if (!isValidObjectId) {
@@ -145,10 +149,24 @@ exports.post_detail_put = asyncHandler(async (req, res, next) => {
     allowedIframeHostnames: ['www.youtube.com'],
   });
 
+  const updatedPostData = {
+    title,
+    content: sanitizedContent,
+    published,
+  };
+
+  // Check if 'image' property exists in req.body
+  if (image) {
+    updatedPostData.image = image;
+  }
+
   try {
-    console.log('is it working?');
-    const updatedPost = await Post.findByIdAndUpdate(req.params.id, {title, content:sanitizedContent, published}, {new:true});
-    
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      updatedPostData,
+      { new: true }
+    );
+
     res.status(201).json(updatedPost);
   } catch {
     res.send('Failed to edit a post!');
