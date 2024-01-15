@@ -6,10 +6,9 @@ require('dotenv').config();
 const asyncHandler = require('express-async-handler');
 
 exports.main_get = asyncHandler(async (req, res, next) => {
-  console.log('environment:', process.env)
   if (mongoose.connection.readyState !== 1) {
     console.error('Database connection is not established.');
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: 'Failed connection to mongoDB' });
   }
 
   const postsPublished = await Post.find({ published: true }).sort({
