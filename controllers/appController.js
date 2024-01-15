@@ -1,9 +1,17 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const asyncHandler = require('express-async-handler');
 
 exports.main_get = asyncHandler(async (req, res, next) => {
+  console.log(process.env.MONGODB_URI)
+  if (mongoose.connection.readyState !== 1) {
+    console.error('Database connection is not established.');
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+
   const postsPublished = await Post.find({ published: true }).sort({
     date: -1,
   });

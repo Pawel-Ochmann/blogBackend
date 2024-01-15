@@ -21,7 +21,9 @@ main().catch((err) => {
   console.log(err);
 });
 async function main() {
+  console.log('start connecting')
   await mongoose.connect(mongoDB);
+  console.log('connected');
 }
 
 var indexRouter = require('./routes/index');
