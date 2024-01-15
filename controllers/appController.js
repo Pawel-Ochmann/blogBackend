@@ -1,14 +1,12 @@
-const Admin = require('../models/user');
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 
-const bcrypt = require('bcryptjs');
-const passport = require('../passport-config');
-const { body, validationResult } = require('express-validator');
 const asyncHandler = require('express-async-handler');
 
 exports.main_get = asyncHandler(async (req, res, next) => {
-  const postsPublished = await Post.find({ published: true });
+  const postsPublished = await Post.find({ published: true }).sort({
+    date: -1,
+  });
 
   const postsWithComments = await Promise.all(
     postsPublished.map(async (postPublished) => {
