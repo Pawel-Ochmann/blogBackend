@@ -90,6 +90,7 @@ exports.comment_delete = asyncHandler(async (req, res, next) => {
     }
 
     await Comment.findById(commentId);
+    res.json('delete success');
   } catch (error) {
     console.log('There was some issue when deleting a comment: ', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
